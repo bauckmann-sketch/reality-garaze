@@ -1,0 +1,48 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: sreality-db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: sreality_tracker
+      POSTGRES_USER: sreality
+      POSTGRES_PASSWORD: sreality_secure_2026
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sreality -d sreality_tracker"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: sreality-dashboard
+    ports:
+      - "8501:8501"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://sreality:sreality_secure_2026@db:5432/sreality_tracker
+    restart: unless-stopped
+
+  scraper:
+    build: .
+    container_name: sreality-scraper
+    command: python scripts/run_scraper.py --mode loop --init-db
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://sreality:sreality_secure_2026@db:5432/sreality_tracker
+      SCRAPE_INTERVAL_HOURS: ${SCRAPE_INTERVAL_HOURS:-24}
+      REQUEST_DELAY_MIN: ${REQUEST_DELAY_MIN:-2.0}
+      REQUEST_DELAY_MAX: ${REQUEST_DELAY_MAX:-4.0}
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+    driver: local
