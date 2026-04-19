@@ -30,19 +30,28 @@ def _make_chart(df, x_col, y_col, title, y_title, color=None, chart_type="line")
             y=df[y_col],
             mode="lines+markers",
             line=dict(color=color, width=3),
-            marker=dict(size=6, color=color),
+            marker=dict(size=6, color=COLORS.get("accent", color),
+                        line=dict(color=color, width=2)),
             fill="tozeroy",
-            fillcolor=f"rgba({int(color[1:3],16)},{int(color[3:5],16)},{int(color[5:7],16)},0.08)",
+            fillcolor=f"rgba({int(color[1:3],16)},{int(color[3:5],16)},{int(color[5:7],16)},0.06)",
             hovertemplate="<b>%{x}</b><br>" + y_title + ": %{y:,.0f}<extra></extra>",
         ))
 
     fig.update_layout(
-        title=dict(text=title, font=dict(size=18)),
+        title=dict(text=title, font=dict(size=18, family="Manrope, sans-serif",
+                                          color=COLORS["primary"])),
         yaxis_title=y_title,
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         font=dict(family="Inter, sans-serif", color=COLORS["text"]),
         margin=dict(l=20, r=20, t=50, b=20),
+        hoverlabel=dict(
+            bgcolor=COLORS["primary"],
+            font_size=13,
+            font_family="Inter, sans-serif",
+            font_color="#ffffff",
+            bordercolor=COLORS.get("accent", color),
+        ),
     )
     fig.update_xaxes(gridcolor=COLORS["grid"])
     fig.update_yaxes(gridcolor=COLORS["grid"], tickformat=",")
@@ -53,22 +62,28 @@ def _clickable_metric_card(label, value, key, delta=None, is_selected=False):
     """Render a clickable metric card using a Streamlit button with custom styling."""
     border_color = COLORS["primary"] if is_selected else COLORS["grid"]
     border_width = "2px" if is_selected else "1px"
-    glow = f"0 0 15px rgba(108, 99, 255, 0.3)" if is_selected else "none"
+    shadow = "0 4px 20px rgba(0, 21, 42, 0.1)" if is_selected else "0 1px 3px rgba(0, 21, 42, 0.04)"
+    accent_bar = f"background: linear-gradient(90deg, {COLORS['accent']}, {COLORS['secondary']});" if is_selected else f"background: {COLORS['grid']};"
 
     delta_html = ""
     if delta:
-        delta_html = f'<p style="color: {COLORS["text_muted"]}; font-size: 0.8rem; margin: 0;">{delta}</p>'
+        delta_html = f'<p style="color: {COLORS["text_muted"]}; font-size: 0.8rem; margin: 0.3rem 0 0 0;">{delta}</p>'
 
     st.markdown(f"""
-    <div style="background: linear-gradient(135deg, {COLORS['card_bg']}, #22252D); 
-                padding: 1.2rem 1.5rem; border-radius: 12px; 
+    <div style="background: {COLORS['card_bg']}; 
+                padding: 1.5rem 1.8rem; border-radius: 16px; 
                 border: {border_width} solid {border_color};
-                box-shadow: {glow};
+                box-shadow: {shadow};
                 cursor: pointer;
                 transition: all 0.2s ease;
-                margin-bottom: 0.5rem;">
-        <p style="color: {COLORS['text_muted']}; font-size: 0.85rem; margin: 0 0 0.3rem 0;">{label}</p>
-        <p style="color: {COLORS['text']}; font-size: 1.8rem; font-weight: 700; margin: 0;">{value}</p>
+                margin-bottom: 0.5rem;
+                position: relative;
+                overflow: hidden;">
+        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 3px; {accent_bar}"></div>
+        <p style="color: {COLORS['text_muted']}; font-size: 0.8rem; margin: 0 0 0.5rem 0;
+                  text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;">{label}</p>
+        <p style="color: {COLORS['primary']}; font-size: 2rem; font-weight: 900; margin: 0;
+                  font-family: 'Manrope', 'Inter', sans-serif; letter-spacing: -0.02em;">{value}</p>
         {delta_html}
     </div>
     """, unsafe_allow_html=True)

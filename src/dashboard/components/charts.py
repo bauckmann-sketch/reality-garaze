@@ -6,19 +6,25 @@ from plotly.subplots import make_subplots
 import pandas as pd
 
 
-# Shared color palette
+# Shared color palette — GarageLedger design system
 COLORS = {
-    "primary": "#6C63FF",
-    "secondary": "#FF6584",
-    "accent": "#43E97B",
+    "primary": "#00152a",
+    "secondary": "#006c4a",
+    "accent": "#85f8c4",
     "warning": "#FFB74D",
-    "bg_dark": "#0E1117",
-    "card_bg": "#1A1D23",
-    "text": "#FAFAFA",
-    "text_muted": "#8B8D97",
-    "grid": "#2A2D35",
-    "up": "#43E97B",
-    "down": "#FF6584",
+    "bg_dark": "#f7f9ff",
+    "card_bg": "#ffffff",
+    "text": "#001d32",
+    "text_muted": "#43474d",
+    "grid": "#e3efff",
+    "up": "#006c4a",
+    "down": "#ba1a1a",
+    "surface": "#edf4ff",
+    "outline": "#c3c6ce",
+    "chart_line": "#00152a",
+    "chart_fill": "rgba(0, 21, 42, 0.06)",
+    "chart_accent": "#006c4a",
+    "chart_accent_fill": "rgba(0, 108, 74, 0.06)",
 }
 
 CHART_LAYOUT = dict(
@@ -27,9 +33,11 @@ CHART_LAYOUT = dict(
     font=dict(family="Inter, sans-serif", color=COLORS["text"]),
     margin=dict(l=20, r=20, t=40, b=20),
     hoverlabel=dict(
-        bgcolor=COLORS["card_bg"],
+        bgcolor=COLORS["primary"],
         font_size=13,
         font_family="Inter, sans-serif",
+        font_color="#ffffff",
+        bordercolor=COLORS["accent"],
     ),
 )
 
@@ -54,13 +62,13 @@ def price_history_chart(df: pd.DataFrame, title: str = "Vývoj ceny") -> go.Figu
         y=df["price"],
         mode="lines+markers",
         name="Cena",
-        line=dict(color=COLORS["primary"], width=3),
-        marker=dict(size=8, color=COLORS["primary"]),
+        line=dict(color=COLORS["chart_line"], width=3),
+        marker=dict(size=8, color=COLORS["accent"], line=dict(color=COLORS["chart_line"], width=2)),
         hovertemplate="<b>%{x|%d.%m.%Y}</b><br>Cena: %{y:,.0f} Kč<extra></extra>",
     ))
 
     fig.update_layout(
-        title=dict(text=title, font=dict(size=18)),
+        title=dict(text=title, font=dict(size=18, color=COLORS["primary"])),
         yaxis_title="Cena (Kč)",
         **CHART_LAYOUT,
     )
@@ -85,10 +93,10 @@ def avg_price_per_m2_chart(df: pd.DataFrame, title: str = "Průměrná cena za m
         y=df["avg_price_per_m2"],
         mode="lines+markers",
         name="Ø Cena/m²",
-        line=dict(color=COLORS["accent"], width=3),
-        marker=dict(size=6, color=COLORS["accent"]),
+        line=dict(color=COLORS["chart_line"], width=3),
+        marker=dict(size=6, color=COLORS["accent"], line=dict(color=COLORS["chart_line"], width=2)),
         fill="tozeroy",
-        fillcolor="rgba(67, 233, 123, 0.1)",
+        fillcolor=COLORS["chart_fill"],
         hovertemplate="<b>%{x|%d.%m.%Y}</b><br>Ø cena/m²: %{y:,.0f} Kč<extra></extra>",
     ))
 
@@ -97,7 +105,7 @@ def avg_price_per_m2_chart(df: pd.DataFrame, title: str = "Průměrná cena za m
             x=df["date"],
             y=df["count"],
             name="Počet inzerátů",
-            marker_color="rgba(108, 99, 255, 0.3)",
+            marker_color="rgba(133, 248, 196, 0.35)",
             yaxis="y2",
             hovertemplate="<b>%{x|%d.%m.%Y}</b><br>Počet: %{y}<extra></extra>",
         ))
@@ -112,7 +120,7 @@ def avg_price_per_m2_chart(df: pd.DataFrame, title: str = "Průměrná cena za m
         )
 
     fig.update_layout(
-        title=dict(text=title, font=dict(size=18)),
+        title=dict(text=title, font=dict(size=18, color=COLORS["primary"])),
         yaxis_title="Cena/m² (Kč)",
         **CHART_LAYOUT,
     )
@@ -152,7 +160,7 @@ def liquidity_histogram(df: pd.DataFrame, title: str = "Doba na trhu") -> go.Fig
     )
 
     fig.update_layout(
-        title=dict(text=title, font=dict(size=18)),
+        title=dict(text=title, font=dict(size=18, color=COLORS["primary"])),
         xaxis_title="Počet dní na trhu",
         yaxis_title="Počet inzerátů",
         **CHART_LAYOUT,
@@ -177,19 +185,19 @@ def liquidity_trend_chart(df: pd.DataFrame, title: str = "Trend likvidity") -> g
         y=df["new_count"],
         name="Nové inzeráty",
         marker_color=COLORS["accent"],
-        opacity=0.8,
+        opacity=0.85,
     ))
 
     fig.add_trace(go.Bar(
         x=df["week"],
         y=-df["removed_count"],
         name="Stažené inzeráty",
-        marker_color=COLORS["secondary"],
+        marker_color=COLORS["down"],
         opacity=0.8,
     ))
 
     fig.update_layout(
-        title=dict(text=title, font=dict(size=18)),
+        title=dict(text=title, font=dict(size=18, color=COLORS["primary"])),
         barmode="relative",
         xaxis_title="Týden",
         yaxis_title="Počet inzerátů",
@@ -231,14 +239,14 @@ def comparison_chart(
             x=df_rent["date"],
             y=df_rent["avg_price"],
             name="Ø Cena pronájem",
-            line=dict(color=COLORS["accent"], width=3),
+            line=dict(color=COLORS["secondary"], width=3),
             hovertemplate="<b>%{x|%d.%m.%Y}</b><br>Pronájem: %{y:,.0f} Kč/měs<extra></extra>",
         ),
         secondary_y=True,
     )
 
     fig.update_layout(
-        title=dict(text=title, font=dict(size=18)),
+        title=dict(text=title, font=dict(size=18, color=COLORS["primary"])),
         **CHART_LAYOUT,
     )
     fig.update_yaxes(title_text="Cena prodej (Kč)", secondary_y=False, tickformat=",")
@@ -256,11 +264,18 @@ def metric_card_html(label: str, value: str, delta: str = None, delta_color: str
         delta_html = f'<p style="color: {color}; font-size: 0.85rem; margin: 0;">{delta}</p>'
 
     return f"""
-    <div style="background: linear-gradient(135deg, {COLORS['card_bg']}, #22252D); 
-                padding: 1.2rem 1.5rem; border-radius: 12px; 
-                border: 1px solid {COLORS['grid']};">
-        <p style="color: {COLORS['text_muted']}; font-size: 0.85rem; margin: 0 0 0.3rem 0;">{label}</p>
-        <p style="color: {COLORS['text']}; font-size: 1.8rem; font-weight: 700; margin: 0;">{value}</p>
+    <div style="background: {COLORS['card_bg']}; 
+                padding: 1.5rem 1.8rem; border-radius: 16px; 
+                border: 1px solid {COLORS['grid']};
+                box-shadow: 0 1px 3px rgba(0, 21, 42, 0.04);
+                position: relative;
+                overflow: hidden;">
+        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 3px; 
+                     background: linear-gradient(90deg, {COLORS['accent']}, {COLORS['secondary']});"></div>
+        <p style="color: {COLORS['text_muted']}; font-size: 0.8rem; margin: 0 0 0.5rem 0; 
+                  text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;">{label}</p>
+        <p style="color: {COLORS['primary']}; font-size: 2rem; font-weight: 900; margin: 0;
+                  font-family: 'Manrope', 'Inter', sans-serif; letter-spacing: -0.02em;">{value}</p>
         {delta_html}
     </div>
     """
